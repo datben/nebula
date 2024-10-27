@@ -1,0 +1,15 @@
+[package]
+name = "orion_nebula"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+no-entrypoint = []
+default = []
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[dependencies]
+solana-program.workspace = true
+nebula.workspace = true
