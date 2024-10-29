@@ -1,5 +1,5 @@
 [package]
-name = "integration_test"
+name = "integration_tests"
 version = "0.1.0"
 edition = "2021"
 
@@ -11,5 +11,4 @@ solana-program-test.workspace = true
 solana-program.workspace = true
 solana-sdk.workspace = true
 
-orion_native = { path = "../programs/orion_native" }
 orion_nebula = { path = "../programs/orion_nebula" }

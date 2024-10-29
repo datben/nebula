@@ -1,11 +1,6 @@
 [workspace]
 resolver = "2"
-members = [
-    "nebula",
-    "programs/orion_nebula",
-    "programs/orion_native",
-    "integration_tests",
-]
+members = ["nebula", "programs/orion_nebula", "integration_tests"]
 
 [workspace.dependencies]
 

@@ -1,4 +1,4 @@
-use nebula::c_struct::SolAccountInfo;
+use nebula::prelude::*;
 use solana_program::{entrypoint::ProgramResult, pubkey::Pubkey};
 
 #[cfg(not(feature = "no-entrypoint"))]

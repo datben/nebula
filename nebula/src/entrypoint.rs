@@ -3,7 +3,7 @@ use solana_program::{
     pubkey::Pubkey,
 };
 
-use crate::c_struct::SolAccountInfo;
+use crate::model::sol_account_info::SolAccountInfo;
 
 pub const SUCCESS: u64 = 0;
 
