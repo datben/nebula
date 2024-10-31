@@ -1,11 +1,11 @@
-use borsh::BorshDeserialize;
-use bytemuck::{Pod, PodCastError};
-use solana_program::pubkey::Pubkey;
-
+use crate::traits::wrapper::ToSome;
 use crate::{
     prelude::SolAccountInfo,
     unpack::{unpack_token_account_amount, unpack_token_account_mint_ref},
 };
+use borsh::BorshDeserialize;
+use bytemuck::{Pod, PodCastError};
+use solana_program::pubkey::Pubkey;
 
 use super::{
     discriminant::{Discriminated, DiscriminatedError},
@@ -18,6 +18,10 @@ pub trait AccountReader {
     fn load_token_account_mint_ref(&self) -> Result<&Pubkey, AccountReaderError>;
 
     fn load_as_ref<T: Pod + Discriminated + OwnedAccount>(&self) -> Result<&T, AccountReaderError>;
+
+    fn load_as_ref_maybe_uninit<T: Pod + Discriminated + OwnedAccount>(
+        &self,
+    ) -> Result<Option<&T>, AccountReaderError>;
 
     fn load_as_ref_at<T: Pod>(&self, offset: usize) -> Result<&T, AccountReaderError>;
 
@@ -36,6 +40,20 @@ impl AccountReader for SolAccountInfo {
             .get(..std::mem::size_of::<T>())
             .ok_or_else(|| AccountReaderError::InvalidDataLen)?;
         Ok(bytemuck::try_from_bytes(data)?)
+    }
+
+    fn load_as_ref_maybe_uninit<T: Pod + Discriminated + OwnedAccount>(
+        &self,
+    ) -> Result<Option<&T>, AccountReaderError> {
+        if self.owner().ne(&solana_program::system_program::ID) {
+            self.load_as_ref().map(|res: &T| res.some())
+        } else {
+            if self.data_len == 0 {
+                Ok(None)
+            } else {
+                Err(AccountReaderError::InvalidDataLen)
+            }
+        }
     }
 
     fn deserialize<T: BorshDeserialize + Discriminated + OwnedAccount>(
