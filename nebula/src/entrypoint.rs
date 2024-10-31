@@ -26,63 +26,68 @@ macro_rules! nebula_entrypoint {
 }
 
 pub unsafe fn sol_deserialize<'a>(input: *const u8) -> (&'a Pubkey, Vec<SolAccountInfo>, &'a [u8]) {
-    let accounts_len = *(input as *const u64) as usize;
-    let mut accounts = Vec::<SolAccountInfo>::with_capacity(accounts_len);
-    accounts.set_len(accounts_len);
-    let mut input = input.add(std::mem::size_of::<u64>());
-    for i in 0..accounts_len {
-        let dup_info = *input as u8;
-        input = input.add(std::mem::size_of::<u8>());
+    use std::mem::size_of;
+    let mut offset: usize = 0;
+    let num_accounts = *(input.add(offset) as *const u64) as usize;
+    offset += size_of::<u64>();
+
+    let mut accounts = Vec::<SolAccountInfo>::with_capacity(num_accounts);
+    accounts.set_len(num_accounts);
+
+    for i in 0..num_accounts {
+        let dup_info = *(input.add(offset) as *const u8);
+        offset += size_of::<u8>();
         if dup_info == NON_DUP_MARKER {
-            // Assign fields from input
-            accounts[i].is_signer = *input != 0;
-            input = input.add(std::mem::size_of::<u8>());
+            accounts[i].is_signer = *(input.add(offset) as *const u8) != 0;
+            offset += size_of::<u8>();
 
-            accounts[i].is_writable = *input != 0;
-            input = input.add(std::mem::size_of::<u8>());
+            accounts[i].is_writable = *(input.add(offset) as *const u8) != 0;
+            offset += size_of::<u8>();
 
-            accounts[i].executable = *input != 0;
-            input = input.add(std::mem::size_of::<u8>());
+            accounts[i].executable = *(input.add(offset) as *const u8) != 0;
+            offset += size_of::<u8>();
 
-            input = input.add(4); // padding
+            let original_data_len_offset = offset;
+            offset += size_of::<u32>();
 
             // Assign pointers
-            accounts[i].key = input as *const Pubkey;
-            input = input.add(std::mem::size_of::<Pubkey>());
+            accounts[i].key = input.add(offset) as *const Pubkey;
+            offset += size_of::<Pubkey>();
 
-            accounts[i].owner = input as *const Pubkey;
-            input = input.add(std::mem::size_of::<Pubkey>());
+            accounts[i].owner = input.add(offset) as *const Pubkey;
+            offset += size_of::<Pubkey>();
 
-            accounts[i].lamports = input as *mut u64;
-            input = input.add(std::mem::size_of::<u64>());
+            accounts[i].lamports = input.add(offset) as *mut u64;
+            offset += size_of::<u64>();
 
-            // Account data
-            let data_len = *(input as *const u64);
-            input = input.add(std::mem::size_of::<u64>());
+            let data_len = *(input.add(offset) as *const u64) as u64;
+            offset += size_of::<u64>();
             accounts[i].data_len = data_len;
 
-            accounts[i].data = input as *mut u8;
-            input = input.add(data_len as usize + MAX_PERMITTED_DATA_INCREASE);
-            input = input.add(input.align_offset(BPF_ALIGN_OF_U128));
+            // Store the original data length for detecting invalid reallocations and
+            // requires that MAX_PERMITTED_DATA_LENGTH fits in a u32
+            *(input.add(original_data_len_offset) as *mut u32) = data_len as u32;
 
-            // Rent epoch
+            accounts[i].data = input.add(offset) as *mut u8;
+
+            offset += data_len as usize + MAX_PERMITTED_DATA_INCREASE;
+            offset += (offset as *const u8).align_offset(BPF_ALIGN_OF_U128); // padding
+
             accounts[i].rent_epoch = *(input as *const u64);
-            input = input.add(std::mem::size_of::<u64>());
+            offset += size_of::<u64>();
         } else {
-            // Duplicate info handling
+            offset += 7;
             accounts[i] = accounts[dup_info as usize];
         }
     }
 
-    let data_len = *(input as *const u64);
-    input = input.add(std::mem::size_of::<u64>());
-    let data_ref = input as *const u8;
+    let instruction_data_len = *(input.add(offset) as *const u64) as usize;
+    offset += size_of::<u64>();
 
-    let program_id = input as *const Pubkey;
+    let instruction_data = { std::slice::from_raw_parts(input.add(offset), instruction_data_len) };
+    offset += instruction_data_len;
 
-    (
-        &*program_id,
-        accounts,
-        std::slice::from_raw_parts(data_ref, data_len as usize),
-    )
+    let program_id = &*(input.add(offset) as *const Pubkey);
+
+    (program_id, accounts, instruction_data)
 }
