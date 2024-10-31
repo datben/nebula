@@ -6,7 +6,7 @@ macro_rules! impl_static_account {
         }
 
         impl $crate::traits::owned_account::StaticOwner for $type {
-            const OWNER: Pubkey = $owner;
+            const OWNER: &'static Pubkey = $owner;
         }
     };
 }
