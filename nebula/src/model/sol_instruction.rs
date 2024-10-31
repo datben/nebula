@@ -1,4 +1,6 @@
-use solana_program::pubkey::Pubkey;
+use solana_program::{entrypoint::ProgramResult, pubkey::Pubkey};
+
+use crate::prelude::{invoke_signed_unchecked, SolAccountInfo};
 
 use super::sol_account_meta::SolAccountMeta;
 
@@ -21,5 +23,19 @@ impl<'a, 'b, 'c, 'd> SolInstruction<'a, 'b, 'c, 'd> {
             accounts_addr,
             data_addr,
         }
+    }
+
+    #[inline(always)]
+    pub fn invoke(&self, accounts: &[SolAccountInfo]) -> ProgramResult {
+        invoke_signed_unchecked(self, accounts, &[])
+    }
+
+    #[inline(always)]
+    pub fn invoke_with_seeds(
+        &self,
+        accounts: &[SolAccountInfo],
+        signers_seeds: &[&[&[u8]]],
+    ) -> ProgramResult {
+        invoke_signed_unchecked(self, accounts, signers_seeds)
     }
 }
