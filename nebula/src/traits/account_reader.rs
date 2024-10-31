@@ -1,3 +1,5 @@
+use core::slice::SlicePattern;
+
 use crate::traits::wrapper::ToSome;
 use crate::unpack::unpack_mint_decimal;
 use crate::{
@@ -65,7 +67,7 @@ impl AccountReader for SolAccountInfo {
         T::verify_owner(self.owner())?;
         let raw_data = unsafe { self.data_slice() };
         let data = T::verify_and_split_bytes(raw_data)?;
-        Ok(T::try_from_slice(data)?)
+        Ok(T::deserialize(&mut &*data)?)
     }
 
     fn unpack_token_account_amount(&self) -> Result<u64, AccountReaderError> {
@@ -85,9 +87,9 @@ impl AccountReader for SolAccountInfo {
 
     fn deserialize_at<T: BorshDeserialize>(&self, offset: usize) -> Result<T, AccountReaderError> {
         let data = unsafe { self.data_slice() }
-            .get(offset..offset + std::mem::size_of::<T>())
+            .get(offset..)
             .ok_or_else(|| AccountReaderError::InvalidDataLen)?;
-        Ok(T::try_from_slice(data)?)
+        Ok(T::deserialize(&mut &*data)?)
     }
 
     fn load_as_ref_at<T: Pod>(&self, offset: usize) -> Result<&T, AccountReaderError> {
