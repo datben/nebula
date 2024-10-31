@@ -18,8 +18,8 @@ pub fn sol_transfer(
         },
         SolAccountMeta {
             pubkey_addr: to,
-            is_writable: false,
-            is_signer: true,
+            is_writable: true,
+            is_signer: false,
         },
     ];
     let ix = SolInstruction::new(&solana_program::system_program::ID, &accs, &data);
