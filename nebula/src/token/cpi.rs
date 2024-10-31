@@ -26,3 +26,24 @@ pub fn create_associated_token_account(
     };
     invoke_signed_unchecked(&ix, accounts, signers_seeds)
 }
+
+pub fn close_token_account(
+    account_pubkey: &Pubkey,
+    destination_pubkey: &Pubkey,
+    owner_pubkey: &Pubkey,
+    token_program_id: &Pubkey,
+    accounts: &[SolAccountInfo],
+    signers_seeds: &[&[&[u8]]],
+) -> ProgramResult {
+    let accs = [
+        SolAccountMeta::new(account_pubkey, false),
+        SolAccountMeta::new(destination_pubkey, false),
+        SolAccountMeta::new_readonly(owner_pubkey, true),
+    ];
+    let ix = SolInstruction {
+        program_id_addr: token_program_id,
+        accounts_addr: &accs,
+        data_addr: &[9u8],
+    };
+    invoke_signed_unchecked(&ix, accounts, signers_seeds)
+}
