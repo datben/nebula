@@ -1,4 +1,5 @@
 use crate::traits::wrapper::ToSome;
+use crate::unpack::unpack_mint_decimal;
 use crate::{
     prelude::SolAccountInfo,
     unpack::{unpack_token_account_amount, unpack_token_account_mint_ref},
@@ -14,6 +15,8 @@ use super::{
 
 pub trait AccountReader {
     fn unpack_token_account_amount(&self) -> Result<u64, AccountReaderError>;
+
+    fn unpack_mint_account_decimal(&self) -> Result<u8, AccountReaderError>;
 
     fn load_token_account_mint_ref(&self) -> Result<&Pubkey, AccountReaderError>;
 
@@ -69,6 +72,11 @@ impl AccountReader for SolAccountInfo {
 
     fn unpack_token_account_amount(&self) -> Result<u64, AccountReaderError> {
         unpack_token_account_amount(unsafe { self.data_slice() })
+            .ok_or_else(|| AccountReaderError::InvalidDataLen)
+    }
+
+    fn unpack_mint_account_decimal(&self) -> Result<u8, AccountReaderError> {
+        unpack_mint_decimal(unsafe { self.data_slice() })
             .ok_or_else(|| AccountReaderError::InvalidDataLen)
     }
 
