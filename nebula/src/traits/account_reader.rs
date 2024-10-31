@@ -64,9 +64,7 @@ impl AccountReader for SolAccountInfo {
     ) -> Result<T, AccountReaderError> {
         T::verify_owner(self.owner())?;
         let raw_data = unsafe { self.data_slice() };
-        let data = T::verify_and_split_bytes(raw_data)?
-            .get(..std::mem::size_of::<T>())
-            .ok_or_else(|| AccountReaderError::InvalidDataLen)?;
+        let data = T::verify_and_split_bytes(raw_data)?;
         Ok(T::try_from_slice(data)?)
     }
 
