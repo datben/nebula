@@ -22,8 +22,10 @@ where
 {
     fn verify_and_split_bytes(bytes: &[u8]) -> Result<&[u8], DiscriminatedError> {
         if Self::DISCRIMINANT.len() <= bytes.len() {
-            let (bytes_to_check, remaining) =
-                unsafe { bytes.split_at_unchecked(Self::DISCRIMINANT.len()) };
+            let (bytes_to_check, remaining) = (
+                &bytes[..Self::DISCRIMINANT.len()],
+                &bytes[Self::DISCRIMINANT.len()..],
+            );
             if bytes_to_check.eq(Self::DISCRIMINANT) {
                 Ok(remaining)
             } else {
