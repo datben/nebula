@@ -23,6 +23,5 @@ pub fn sol_transfer(
         },
     ];
     let ix = SolInstruction::new(&solana_program::system_program::ID, &accs, &data);
-    invoke_signed_unchecked(&ix, accounts, signers_seeds)?;
-    Ok(())
+    invoke_signed_unchecked(&ix, accounts, signers_seeds)
 }
