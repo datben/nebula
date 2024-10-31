@@ -11,5 +11,6 @@ solana-program-test = "2"
 solana-sdk = "2"
 bytemuck = "1"
 thiserror = "*"
+borsh = "*"
 
 tokio = "*"

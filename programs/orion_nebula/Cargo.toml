@@ -13,4 +13,5 @@ crate-type = ["cdylib", "lib"]
 [dependencies]
 solana-program.workspace = true
 nebula.workspace = true
+borsh.workspace = true
 bincode = "*"

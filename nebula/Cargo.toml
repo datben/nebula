@@ -8,3 +8,4 @@ edition = "2021"
 solana-program.workspace = true
 bytemuck.workspace = true
 thiserror.workspace = true
+borsh.workspace = true

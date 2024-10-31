@@ -27,6 +27,11 @@ impl SolAccountInfo {
         unsafe { *self.lamports }
     }
 
+    #[inline(always)]
+    pub fn owner(&self) -> &Pubkey {
+        unsafe { &*self.owner }
+    }
+
     /// Slice is valid until next realloc
     #[inline(always)]
     pub unsafe fn data_slice(&self) -> &[u8] {
