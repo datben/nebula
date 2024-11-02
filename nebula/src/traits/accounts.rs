@@ -15,7 +15,7 @@ impl<'a, const LEN: usize> SolAccountInfosToMeta<'a> for [SolAccountInfo; LEN] {
     }
 }
 
-impl<'a> SolAccountInfosToMeta<'a> for [AccountInfo<'a>] {
+impl<'a, 'b> SolAccountInfosToMeta<'a> for [AccountInfo<'b>] {
     type Output = Vec<AccountMeta>;
 
     fn to_account_metas(&'a self) -> Self::Output {
@@ -53,7 +53,7 @@ impl<'a> SolAccountInfosToMetaWithSkip<'a> for [SolAccountInfo] {
     }
 }
 
-impl<'a> SolAccountInfosToMetaWithSkip<'a> for [AccountInfo<'a>] {
+impl<'a, 'b> SolAccountInfosToMetaWithSkip<'a> for [AccountInfo<'b>] {
     type Output = Vec<AccountMeta>;
     fn to_account_metas_with_skip(&'a self, skip: &[usize]) -> Self::Output {
         self.iter()
