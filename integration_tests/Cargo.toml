@@ -10,5 +10,8 @@ tokio.workspace = true
 solana-program-test.workspace = true
 solana-program.workspace = true
 solana-sdk.workspace = true
+solana-client.workspace = true
+
+serde_json = "*"
 
 orion_nebula = { path = "../programs/orion_nebula" }
