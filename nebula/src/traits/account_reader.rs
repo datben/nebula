@@ -16,6 +16,8 @@ use super::{
 };
 
 pub trait AccountReader {
+    fn key(&self) -> &Pubkey;
+
     fn data_ref(&self) -> &[u8];
 
     fn owner_ref(&self) -> &Pubkey;
@@ -93,6 +95,11 @@ impl AccountReader for SolAccountInfo {
     fn owner_ref(&self) -> &Pubkey {
         self.owner()
     }
+
+    #[inline(always)]
+    fn key(&self) -> &Pubkey {
+        self.key()
+    }
 }
 
 impl AccountReader for AccountInfo<'_> {
@@ -104,6 +111,11 @@ impl AccountReader for AccountInfo<'_> {
     #[inline(always)]
     fn owner_ref(&self) -> &Pubkey {
         self.owner
+    }
+
+    #[inline(always)]
+    fn key(&self) -> &Pubkey {
+        self.key
     }
 }
 
