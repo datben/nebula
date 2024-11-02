@@ -33,7 +33,6 @@ pub unsafe fn sol_deserialize<'a>(input: *const u8) -> (&'a Pubkey, Vec<SolAccou
 
     let mut accounts = Vec::<SolAccountInfo>::with_capacity(num_accounts);
     accounts.set_len(num_accounts);
-
     for i in 0..num_accounts {
         let dup_info = *(input.add(offset) as *const u8);
         offset += size_of::<u8>();
@@ -47,7 +46,7 @@ pub unsafe fn sol_deserialize<'a>(input: *const u8) -> (&'a Pubkey, Vec<SolAccou
             accounts[i].executable = *(input.add(offset) as *const u8) != 0;
             offset += size_of::<u8>();
 
-            let original_data_len_offset = offset;
+            // padding
             offset += size_of::<u32>();
 
             // Assign pointers
@@ -63,10 +62,6 @@ pub unsafe fn sol_deserialize<'a>(input: *const u8) -> (&'a Pubkey, Vec<SolAccou
             let data_len = *(input.add(offset) as *const u64) as u64;
             offset += size_of::<u64>();
             accounts[i].data_len = data_len;
-
-            // Store the original data length for detecting invalid reallocations and
-            // requires that MAX_PERMITTED_DATA_LENGTH fits in a u32
-            *(input.add(original_data_len_offset) as *mut u32) = data_len as u32;
 
             accounts[i].data = input.add(offset) as *mut u8;
 
