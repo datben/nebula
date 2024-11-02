@@ -20,7 +20,7 @@ pub trait AccountReader {
 
     fn data_ref(&self) -> &[u8];
 
-    fn owner_ref(&self) -> &Pubkey;
+    fn owner(&self) -> &Pubkey;
 
     fn unpack_token_account_amount(&self) -> Result<u64, AccountReaderError> {
         unpack_token_account_amount(self.data_ref())
@@ -37,7 +37,7 @@ pub trait AccountReader {
     }
 
     fn load_as_ref<T: Pod + Discriminated + OwnedAccount>(&self) -> Result<&T, AccountReaderError> {
-        T::verify_owner(self.owner_ref())?;
+        T::verify_owner(self.owner())?;
         let raw_data = self.data_ref();
         let data = T::verify_and_split_bytes(raw_data)?
             .get(..std::mem::size_of::<T>())
@@ -48,7 +48,7 @@ pub trait AccountReader {
     fn load_as_ref_maybe_uninit<T: Pod + Discriminated + OwnedAccount>(
         &self,
     ) -> Result<Option<&T>, AccountReaderError> {
-        if self.owner_ref().ne(&solana_program::system_program::ID) {
+        if self.owner().ne(&solana_program::system_program::ID) {
             self.load_as_ref().map(|res: &T| res.some())
         } else {
             if self.data_ref().len() == 0 {
@@ -70,7 +70,7 @@ pub trait AccountReader {
     fn deserialize<T: BorshDeserialize + Discriminated + OwnedAccount>(
         &self,
     ) -> Result<T, AccountReaderError> {
-        T::verify_owner(self.owner_ref())?;
+        T::verify_owner(self.owner())?;
         let raw_data = self.data_ref();
         let data = T::verify_and_split_bytes(raw_data)?;
         Ok(T::deserialize(&mut &*data)?)
@@ -92,7 +92,7 @@ impl AccountReader for SolAccountInfo {
     }
 
     #[inline(always)]
-    fn owner_ref(&self) -> &Pubkey {
+    fn owner(&self) -> &Pubkey {
         self.owner()
     }
 
@@ -109,7 +109,7 @@ impl AccountReader for AccountInfo<'_> {
     }
 
     #[inline(always)]
-    fn owner_ref(&self) -> &Pubkey {
+    fn owner(&self) -> &Pubkey {
         self.owner
     }
 
