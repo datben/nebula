@@ -1,4 +1,4 @@
-use solana_program::pubkey::Pubkey;
+use solana_program::{instruction::AccountMeta, pubkey::Pubkey};
 
 #[repr(C)]
 pub struct SolAccountMeta<'a> {
@@ -21,6 +21,14 @@ impl<'a> SolAccountMeta<'a> {
             pubkey_addr,
             is_writable: false,
             is_signer,
+        }
+    }
+
+    pub fn to_account_meta(&self) -> AccountMeta {
+        AccountMeta {
+            pubkey: *self.pubkey_addr,
+            is_signer: self.is_signer,
+            is_writable: self.is_writable,
         }
     }
 }

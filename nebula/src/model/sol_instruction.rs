@@ -1,4 +1,4 @@
-use solana_program::{entrypoint::ProgramResult, pubkey::Pubkey};
+use solana_program::{entrypoint::ProgramResult, instruction::Instruction, pubkey::Pubkey};
 
 use crate::prelude::{invoke_signed_unchecked, SolAccountInfo};
 
@@ -37,5 +37,17 @@ impl<'a, 'b, 'c, 'd> SolInstruction<'a, 'b, 'c, 'd> {
         signers_seeds: &[&[&[u8]]],
     ) -> ProgramResult {
         invoke_signed_unchecked(self, accounts, signers_seeds)
+    }
+
+    pub fn to_instruction(&self) -> Instruction {
+        Instruction {
+            program_id: *self.program_id_addr,
+            accounts: self
+                .accounts_addr
+                .iter()
+                .map(|acc| acc.to_account_meta())
+                .collect(),
+            data: self.data_addr.to_vec(),
+        }
     }
 }

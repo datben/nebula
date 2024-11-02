@@ -1,3 +1,5 @@
+use solana_program::{account_info::AccountInfo, instruction::AccountMeta};
+
 use crate::prelude::{SolAccountInfo, SolAccountMeta};
 
 pub trait SolAccountInfosToMeta<'a> {
@@ -13,6 +15,20 @@ impl<'a, const LEN: usize> SolAccountInfosToMeta<'a> for [SolAccountInfo; LEN] {
     }
 }
 
+impl<'a> SolAccountInfosToMeta<'a> for [AccountInfo<'a>] {
+    type Output = Vec<AccountMeta>;
+
+    fn to_account_metas(&'a self) -> Self::Output {
+        self.iter()
+            .map(|acc| AccountMeta {
+                pubkey: *acc.key,
+                is_signer: acc.is_signer,
+                is_writable: acc.is_writable,
+            })
+            .collect()
+    }
+}
+
 impl<'a> SolAccountInfosToMeta<'a> for [SolAccountInfo] {
     type Output = Vec<SolAccountMeta<'a>>;
 
@@ -22,15 +38,32 @@ impl<'a> SolAccountInfosToMeta<'a> for [SolAccountInfo] {
 }
 
 pub trait SolAccountInfosToMetaWithSkip<'a> {
-    fn to_account_metas_with_skip(&'a self, skip: &[usize]) -> Vec<SolAccountMeta<'a>>;
+    type Output;
+    fn to_account_metas_with_skip(&'a self, skip: &[usize]) -> Self::Output;
 }
 
 impl<'a> SolAccountInfosToMetaWithSkip<'a> for [SolAccountInfo] {
-    fn to_account_metas_with_skip(&'a self, skip: &[usize]) -> Vec<SolAccountMeta<'a>> {
+    type Output = Vec<SolAccountMeta<'a>>;
+    fn to_account_metas_with_skip(&'a self, skip: &[usize]) -> Self::Output {
         self.iter()
             .enumerate()
             .filter(|(i, _)| !skip.contains(i))
             .map(|acc| acc.1.to_account_meta())
+            .collect()
+    }
+}
+
+impl<'a> SolAccountInfosToMetaWithSkip<'a> for [AccountInfo<'a>] {
+    type Output = Vec<AccountMeta>;
+    fn to_account_metas_with_skip(&'a self, skip: &[usize]) -> Self::Output {
+        self.iter()
+            .enumerate()
+            .filter(|(i, _)| !skip.contains(i))
+            .map(|acc| AccountMeta {
+                pubkey: *acc.1.key,
+                is_signer: acc.1.is_signer,
+                is_writable: acc.1.is_writable,
+            })
             .collect()
     }
 }
