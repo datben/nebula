@@ -45,6 +45,14 @@ pub trait AccountReader {
         Ok(bytemuck::try_from_bytes(data)?)
     }
 
+    fn unchecked_load_as_ref<T: Pod + Discriminated + OwnedAccount>(
+        &self,
+    ) -> Result<&T, AccountReaderError> {
+        let raw_data = self.data_ref();
+        let data = T::unsafe_split_bytes(raw_data);
+        Ok(bytemuck::try_from_bytes(data)?)
+    }
+
     fn load_as_ref_maybe_uninit<T: Pod + Discriminated + OwnedAccount>(
         &self,
     ) -> Result<Option<&T>, AccountReaderError> {
@@ -73,6 +81,14 @@ pub trait AccountReader {
         T::verify_owner(self.owner())?;
         let raw_data = self.data_ref();
         let data = T::verify_and_split_bytes(raw_data)?;
+        Ok(T::deserialize(&mut &*data)?)
+    }
+
+    fn unchecked_deserialize<T: BorshDeserialize + Discriminated + OwnedAccount>(
+        &self,
+    ) -> Result<T, AccountReaderError> {
+        let raw_data = self.data_ref();
+        let data = T::unsafe_split_bytes(raw_data);
         Ok(T::deserialize(&mut &*data)?)
     }
 

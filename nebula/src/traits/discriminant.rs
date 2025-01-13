@@ -2,6 +2,10 @@ pub trait Discriminated {
     fn verify_and_split_bytes(bytes: &[u8]) -> Result<&[u8], DiscriminatedError> {
         Ok(bytes)
     }
+
+    fn unsafe_split_bytes(bytes: &[u8]) -> &[u8] {
+        bytes
+    }
 }
 
 #[derive(thiserror::Error, Debug)]
@@ -34,6 +38,10 @@ where
         } else {
             Err(DiscriminatedError::MissingBytes)
         }
+    }
+
+    fn unsafe_split_bytes(bytes: &[u8]) -> &[u8] {
+        unsafe { bytes.get_unchecked(Self::DISCRIMINANT.len()..) }
     }
 }
 
