@@ -18,7 +18,11 @@ macro_rules! nebula_entrypoint {
             let (program_id, accounts, instruction_data) =
                 $crate::entrypoint::sol_deserialize(input);
 
-            match $process_instruction(&program_id, &accounts, &instruction_data) {
+            match $process_instruction(
+                &program_id,
+                Box::leak(accounts.into_boxed_slice()),
+                &instruction_data,
+            ) {
                 Ok(()) => $crate::entrypoint::SUCCESS,
                 Err(error) => error.into(),
             }
