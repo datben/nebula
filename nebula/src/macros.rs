@@ -11,14 +11,17 @@ macro_rules! impl_static_account {
     };
 }
 
-#[macro_export(local_inner_macros)]
+#[macro_export]
 macro_rules! impl_anchor_account {
     ($type:ty, $owner:expr) => {
-        impl_static_account!(
-            $type,
-            &$crate::const_utils::anchor_account_sighash(::core::stringify!($type)),
-            $owner
-        );
+        impl $crate::traits::discriminant::StaticDiscriminated for $type {
+            const DISCRIMINANT: &'static [u8] =
+                &$crate::const_utils::anchor_account_sighash(stringify!($type));
+        }
+
+        impl $crate::traits::owned_account::StaticOwner for $type {
+            const OWNER: &'static $crate::prelude::Pubkey = $owner;
+        }
     };
 }
 
