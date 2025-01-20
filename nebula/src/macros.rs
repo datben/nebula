@@ -14,11 +14,11 @@ macro_rules! impl_static_account {
 #[macro_export]
 macro_rules! impl_anchor_account {
     ($type:ty, $owner:expr) => {
-        impl_static_account!(
+        $crate::impl_static_account!(
             $type,
             &$crate::const_utils::anchor_account_sighash(stringify!($type)),
             $owner
-        );
+        )
     };
 }
 
