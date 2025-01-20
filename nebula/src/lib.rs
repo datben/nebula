@@ -1,3 +1,4 @@
+pub mod const_utils;
 pub mod entrypoint;
 pub mod macros;
 pub mod model;

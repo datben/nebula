@@ -24,6 +24,7 @@ mod tests {
             solana_program::system_program::ID,
             false,
         ));
+        accounts.push(AccountMeta::new(orion_nebula::ID, false));
         let ix = Instruction {
             program_id: orion_nebula::ID,
             accounts: accounts.clone(),

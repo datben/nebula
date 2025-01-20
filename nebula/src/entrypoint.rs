@@ -9,6 +9,7 @@ pub const SUCCESS: u64 = 0;
 
 pub const MAX_TX_ACCOUNTS: usize = 128;
 
+/// TODO: Buggy on mainnet, do not use
 #[macro_export]
 macro_rules! nebula_entrypoint {
     ( $process_instruction:ident ) => {
@@ -18,11 +19,7 @@ macro_rules! nebula_entrypoint {
             let (program_id, accounts, instruction_data) =
                 $crate::entrypoint::sol_deserialize(input);
 
-            match $process_instruction(
-                &program_id,
-                Box::leak(accounts.into_boxed_slice()),
-                &instruction_data,
-            ) {
+            match $process_instruction(&program_id, &accounts, &instruction_data) {
                 Ok(()) => $crate::entrypoint::SUCCESS,
                 Err(error) => error.into(),
             }

@@ -16,13 +16,13 @@ pub enum DiscriminatedError {
     MissingBytes,
 }
 
-pub trait StaticDiscriminanted {
+pub trait StaticDiscriminated {
     const DISCRIMINANT: &'static [u8];
 }
 
 impl<T> Discriminated for T
 where
-    T: StaticDiscriminanted,
+    T: StaticDiscriminated,
 {
     fn verify_and_split_bytes(bytes: &[u8]) -> Result<&[u8], DiscriminatedError> {
         if Self::DISCRIMINANT.len() <= bytes.len() {
@@ -45,8 +45,8 @@ where
     }
 }
 
-pub trait NotDiscriminanted {}
+pub trait NotDiscriminated {}
 
-impl<T: NotDiscriminanted> StaticDiscriminanted for T {
+impl<T: NotDiscriminated> StaticDiscriminated for T {
     const DISCRIMINANT: &'static [u8] = &[];
 }

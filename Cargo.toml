@@ -15,3 +15,5 @@ thiserror = "*"
 borsh = "*"
 
 tokio = "*"
+static_assertions = "*"
+sha2-const = { git = "https://github.com/ArigatoMev/sha2-const.git", branch = "stable" }

@@ -1,5 +1,5 @@
 use nebula::{prelude::*, system_program::cpi::sol_transfer};
-use solana_program::{entrypoint::ProgramResult, pubkey::Pubkey};
+use solana_program::{entrypoint::ProgramResult, msg, pubkey::Pubkey};
 
 solana_program::declare_id!("GeKfJNHWcueU5aNV3Af3sGUVnYn6chLfFBWoessKWkc9");
 

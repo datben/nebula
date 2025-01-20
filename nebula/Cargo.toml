@@ -9,3 +9,5 @@ solana-program.workspace = true
 bytemuck.workspace = true
 thiserror.workspace = true
 borsh.workspace = true
+sha2-const.workspace = true
+static_assertions.workspace = true
